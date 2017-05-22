@@ -28,10 +28,14 @@ namespace Core
             Requirements = req;
         }
 
+        /// <summary>
+        /// Generate password with given value, salt and minimum length
+        /// </summary>        
         public string GeneratePassword(string value, string salt, int length)
         {
             var rawPassword = GenerateRawPassword(value, salt).Substring(0, length);
             var library = Alphabet + Uppercase;
+
             var testRequirements = Requirements & PasswordRequirements.NoNumber;
             if ((Requirements & PasswordRequirements.NoNumber) == 0)
             {
@@ -46,6 +50,9 @@ namespace Core
             return VerifyPassword(processedPassword, Requirements);
         }
 
+        /// <summary>
+        /// Verifies password matches requirement, add characters if needed
+        /// </summary>        
         private string VerifyPassword(string sourcePassword, PasswordRequirements requirements)
         {
             bool success = true;

@@ -12,13 +12,14 @@ namespace PasswordManager
     public partial class MainPage : ContentPage
     {
         PasswordRequirements DefaultRequirements;
-        PasswordRequestViewModel data;
+        PasswordRequestViewModel ViewModel;
 
         public MainPage()
         {
             InitializeComponent();
-            data = new PasswordRequestViewModel();
-            BindingContext = data;
+            ViewModel = new PasswordRequestViewModel();
+            BindingContext = ViewModel;
+
             DefaultRequirements =
                 PasswordRequirements.SymbolRequired
                 | PasswordRequirements.UpperCaseRequired
@@ -28,32 +29,32 @@ namespace PasswordManager
         public void ClearEnteredData()
         {
             // Reset password for security reason
-            data.MasterPassword = string.Empty;
-            data.Password = string.Empty;
+            ViewModel.MasterPassword = string.Empty;
+            ViewModel.Password = string.Empty;
         }
 
         private void NewPassword_Clicked(object sender, EventArgs e)
         {
-            var password = data.MasterPassword;
-            var serviceName = ServicePersistor.GetServiceName(data.ServiceName);
+            var password = ViewModel.MasterPassword;
+            var serviceName = ServicePersistor.GetServiceName(ViewModel.ServiceName);
             var requirement = PasswordRequirements.None;
 
-            requirement |= data.IncludeNumbers ? PasswordRequirements.NumberRequired : PasswordRequirements.NoNumber;
-            requirement |= data.IncludeSymbols ? PasswordRequirements.SymbolRequired : PasswordRequirements.NoSymbol;
-            requirement |= data.IncludeUppercase ? PasswordRequirements.UpperCaseRequired : PasswordRequirements.None;
+            requirement |= ViewModel.IncludeNumbers ? PasswordRequirements.NumberRequired : PasswordRequirements.NoNumber;
+            requirement |= ViewModel.IncludeSymbols ? PasswordRequirements.SymbolRequired : PasswordRequirements.NoSymbol;
+            requirement |= ViewModel.IncludeUppercase ? PasswordRequirements.UpperCaseRequired : PasswordRequirements.None;
 
             GeneratePassword(password, serviceName, requirement);
         }
 
         private void Button_Clicked(object sender, EventArgs e)
         {
-            var password = data.MasterPassword;
-            var serviceName = ServicePersistor.GetServiceName(data.ServiceName);
+            var password = ViewModel.MasterPassword;
+            var serviceName = ServicePersistor.GetServiceName(ViewModel.ServiceName);
 
             if (!String.IsNullOrEmpty(password) && !String.IsNullOrEmpty(serviceName))
             {
-
-                var encryptedMaster = ServicePersistor.GetEncryptedFileName(password);                
+                // Use one set of database vs a new database for a different master password
+                var encryptedMaster = ServicePersistor.GetEncryptedFileName("DFtIETN"); // ServicePersistor.GetEncryptedFileName(password);                
                 var requirement = PasswordRequirements.None;
 
                 SqliteStorage.InitializeStorage(IoCProviders.GetProvider<IKnowStorage>().GetStoragePath(), encryptedMaster);
@@ -64,15 +65,15 @@ namespace PasswordManager
                 {
                     requirement = (PasswordRequirements)serviceEntity.Requirements;
 
-                    data.IncludeNumbers = (requirement & PasswordRequirements.NumberRequired) > 0;
-                    data.IncludeSymbols = (requirement & PasswordRequirements.SymbolRequired) > 0;
-                    data.IncludeUppercase = (requirement & PasswordRequirements.UpperCaseRequired) > 0;
+                    ViewModel.IncludeNumbers = (requirement & PasswordRequirements.NumberRequired) > 0;
+                    ViewModel.IncludeSymbols = (requirement & PasswordRequirements.SymbolRequired) > 0;
+                    ViewModel.IncludeUppercase = (requirement & PasswordRequirements.UpperCaseRequired) > 0;
                 }
                 else
                 {
-                    requirement |= data.IncludeNumbers ? PasswordRequirements.NumberRequired : PasswordRequirements.NoNumber;
-                    requirement |= data.IncludeSymbols ? PasswordRequirements.SymbolRequired : PasswordRequirements.NoSymbol;
-                    requirement |= data.IncludeUppercase ? PasswordRequirements.UpperCaseRequired : PasswordRequirements.None;
+                    requirement |= ViewModel.IncludeNumbers ? PasswordRequirements.NumberRequired : PasswordRequirements.NoNumber;
+                    requirement |= ViewModel.IncludeSymbols ? PasswordRequirements.SymbolRequired : PasswordRequirements.NoSymbol;
+                    requirement |= ViewModel.IncludeUppercase ? PasswordRequirements.UpperCaseRequired : PasswordRequirements.None;
                 }
 
                 GeneratePassword(password, serviceName, requirement);                
@@ -83,14 +84,14 @@ namespace PasswordManager
         {
             PasswordGenerator generator = new PasswordGenerator(requirement);
 
-            data.Password = generator.GeneratePassword(password, serviceName, 10);
+            ViewModel.Password = generator.GeneratePassword(password, serviceName, 10);
 
             // store settings
             ServicePersistor.Persist(serviceName, requirement);
-            data.PasswordVisible = true;
-            data.CreateNewPassword = true;
+            ViewModel.PasswordVisible = true;
+            ViewModel.CreateNewPassword = true;
 
-            IoCProviders.GetProvider<ICopyToClipboard>().CopyToClipboard(data.Password);
+            IoCProviders.GetProvider<ICopyToClipboard>().CopyToClipboard(ViewModel.Password);
             IoCProviders.GetProvider<IProvideNotifications>().Notify(null, "Password has been copied to clipboard");
         }
 
@@ -105,13 +106,13 @@ namespace PasswordManager
 
         private void ResetUI()
         {
-            data.PasswordVisible = false;
-            data.CreateNewPassword = false;
+            ViewModel.PasswordVisible = false;
+            ViewModel.CreateNewPassword = false;
         }
 
         private void ShowHide_Clicked(object sender, EventArgs e)
         {
-            data.HideMasterPassword = !data.HideMasterPassword;
+            ViewModel.HideMasterPassword = !ViewModel.HideMasterPassword;
         }
 
         private void Requirement_Change(object sender, EventArgs e)
@@ -120,13 +121,13 @@ namespace PasswordManager
             switch (button.CommandParameter.ToString())
             {
                 case "Number":
-                    data.IncludeNumbers = !data.IncludeNumbers;
+                    ViewModel.IncludeNumbers = !ViewModel.IncludeNumbers;
                     break;
                 case "Symbol":
-                    data.IncludeSymbols = !data.IncludeSymbols;
+                    ViewModel.IncludeSymbols = !ViewModel.IncludeSymbols;
                     break;
                 case "Uppercase":
-                    data.IncludeUppercase = !data.IncludeUppercase;
+                    ViewModel.IncludeUppercase = !ViewModel.IncludeUppercase;
                     break;
                 default:
                     break;
