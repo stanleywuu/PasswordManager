@@ -25,6 +25,13 @@ namespace PasswordManager
                 | PasswordRequirements.NumberRequired;
         }
 
+        protected override void OnDisappearing()
+        {
+            // Reset password for security reason
+            data.MasterPassword = string.Empty;
+            data.Password = string.Empty;
+        }
+
         private void NewPassword_Clicked(object sender, EventArgs e)
         {
             var password = data.MasterPassword;
