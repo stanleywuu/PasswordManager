@@ -25,7 +25,7 @@ namespace PasswordManager
                 | PasswordRequirements.NumberRequired;
         }
 
-        protected override void OnDisappearing()
+        public void ClearEnteredData()
         {
             // Reset password for security reason
             data.MasterPassword = string.Empty;

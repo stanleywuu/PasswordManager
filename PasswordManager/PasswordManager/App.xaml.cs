@@ -36,6 +36,7 @@ namespace PasswordManager
         protected override void OnResume()
         {
             // Handle when your app resumes
+            ((PasswordManager.MainPage)MainPage).ClearEnteredData();
         }
     }
 }
