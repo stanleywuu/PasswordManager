@@ -38,7 +38,7 @@ namespace Core
         /// <summary>
         /// Retrieve ServiceEntity based on service name
         /// </summary>        
-        public static ServicesEntity GetEncryptedSettings(string service)
+        public static ServicesEntity GetPasswordSettings(string service)
         {
             var processedServiceName = GetServiceName(service); 
             var entity = SqliteStorage.GetEntity<ServicesEntity>().FirstOrDefault(x => x.Service.Equals(processedServiceName));

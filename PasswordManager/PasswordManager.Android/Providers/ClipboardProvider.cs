@@ -3,7 +3,7 @@ using PasswordManager.Storage;
 
 namespace PasswordManager.Droid.Providers
 {
-    internal class ClipboardProvider : ICopyToClipboard
+    public class ClipboardProvider : ICopyToClipboard
     {
         Context FormContext;
 

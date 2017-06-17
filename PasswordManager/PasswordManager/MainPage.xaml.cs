@@ -1,6 +1,7 @@
 ﻿using System;
 using Core;
 using Core.Storage;
+
 using PasswordManager.IoCContainers;
 using PasswordManager.Storage;
 using PasswordManager.UI;
@@ -59,7 +60,7 @@ namespace PasswordManager
 
                 SqliteStorage.InitializeStorage(IoCProviders.GetProvider<IKnowStorage>().GetStoragePath(), encryptedMaster);
 
-                var serviceEntity = ServicePersistor.GetEncryptedSettings(serviceName);
+                var serviceEntity = ServicePersistor.GetPasswordSettings(serviceName);
 
                 if (serviceEntity != null)
                 {
